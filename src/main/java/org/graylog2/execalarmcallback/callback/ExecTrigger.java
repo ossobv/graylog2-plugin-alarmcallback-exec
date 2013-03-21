@@ -1,5 +1,6 @@
 package org.graylog2.execalarmcallback.callback;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.Process;
 import java.lang.ProcessBuilder;
@@ -20,29 +21,31 @@ public class ExecTrigger {
     }
 
     public void trigger(Alarm alarm) throws AlarmCallbackException {
-        ProcessBuilder pb;
-        Map<String, String> env;
-        int status;
+        String[] cmd = new String[]{"/bin/sh", "-c", this.cmd};
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        Map<String, String> env = pb.environment();
 
-        pb = new ProcessBuilder(this.cmd);
-        // send stdin/err to the greylog logs
+        // send stdin/err to the graylog logs
         pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
+        // change workdir to /tmp
+        pb.directory(new File("/tmp"));
 
-        env = pb.environment();
         env.put("GL2_TOPIC", alarm.getTopic());
         env.put("GL2_DESCRIPTION", alarm.getDescription());
-        env.put("GL2_MESSAGE_COUNT", alarm.getMessageCount().toString());
+        // not supported by our graylog server
+        //env.put("GL2_MESSAGE_COUNT", Integer.toString(alarm.getMessageCount()));
 
         try {
-            Process process = pb.start();
+            Process p = pb.start();
         } catch (IOException e) {
             throw new AlarmCallbackException(String.format("Could not start alarm process: %s", e));
         }
 
-        status = process.waitFor();
-        if (status != 0) {
-            throw new AlarmCallbackException(String.format("Command terminated with status %d", status));
-        }
+        // 
+        //int status = p.waitFor();
+        //if (status != 0) {
+        //    throw new AlarmCallbackException(String.format("Command terminated with status %d", status));
+        //}
     }
 }
 // vim: set ts=8 sw=4 sts=4 et ai:

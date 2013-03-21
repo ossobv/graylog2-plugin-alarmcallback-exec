@@ -7,11 +7,11 @@ DEST = /usr/share/graylog2-server
 all: $(PKG)
 
 clean:
-        $(RM) -r target
+	$(RM) -r target
 
 install: $(PKG)
-        $(RM) $(DEST)/plugin/alarm_callbacks/org.graylog2.execalarmcallback.callback.ExecAlarmCallback_gl2plugin.jar
-        cp -a $(PKG) $(DEST)/plugin/alarm_callbacks/org.graylog2.execalarmcallback.callback.ExecAlarmCallback_gl2plugin.jar
+	$(RM) $(DEST)/plugin/alarm_callbacks/org.graylog2.execalarmcallback.callback.ExecAlarmCallback_gl2plugin.jar
+	cp -a $(PKG) $(DEST)/plugin/alarm_callbacks/org.graylog2.execalarmcallback.callback.ExecAlarmCallback_gl2plugin.jar
 
 $(PKG): $(SOURCES)
-        mvn package
+	mvn package
