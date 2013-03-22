@@ -69,7 +69,7 @@ def fancymessage(to, topic, description):
 
 def get_messages(stream_id, size):
     body = json.dumps({
-        'query': {'term': {'steams': stream_id}},
+        'query': {'term': {'streams': unicode(stream_id)}},
         'sort': {'created_at' : 'desc'}
     })
     params = urllib.urlencode({
