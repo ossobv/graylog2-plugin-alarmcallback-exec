@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # vim: set ts=8 sw=4 sts=4 et ai:
 
+'''
+This script retrieves the stream id from the mongo database using the alarm topic
+and queries elasticsearch for the last 25 log messages on that stream. The log
+messages are sent to the email addresses specified on the command line.
+
+Usage: graylog-email-alert.py alert@example.com more@example.com
+'''
+
 # configurables
 FROM_EMAIL = 'noreply@example.com'
 ELASTICSEARCH_URL = 'http://localhost:9200/graylog2_recent/message/_search'
