@@ -3,7 +3,7 @@
 
 '''
 This script retrieves the stream id from the mongo database using the alarm topic
-and queries elasticsearch for the last 25 log messages on that stream. The log
+and queries elasticsearch for the last log messages on that stream. The log
 messages are sent to the email addresses specified on the command line.
 
 Usage: graylog-email-alert.py alert@example.com more@example.com
@@ -21,10 +21,13 @@ import json
 import httplib2
 import os
 from pymongo import Connection
+import re
 import smtplib
 import sys
 import time
 import urllib
+
+re_description = re.compile(r'^Stream \[.*?\] received (\d+) messages')
 
 LogMessage = namedtuple('LogMessage', 'message, level, host, facility, file, histogram_time, full_message, created_at, line, streams')
 
@@ -34,15 +37,19 @@ def fancymessage(to, topic, description):
     except:  # XXX catch explicit errors
         stream = None
 
-    if stream is not None:
-        messages = get_messages(stream['_id'])
-    else:
-        messages = []
-
+    size = 25
     body = []
     if description is not None:
         body.append(description)
         body.append('')
+        match = re_description.match(description)
+        if match:
+            size = match.group(1)
+
+    if stream is not None:
+        messages = get_messages(stream['_id'], size)
+    else:
+        messages = []
 
     for message in messages:
         timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(message.created_at))
@@ -60,14 +67,17 @@ def fancymessage(to, topic, description):
     s.quit()
 
 
-def get_messages(stream_id, size=25):
+def get_messages(stream_id, size):
+    body = json.dumps({
+        'query': {'term': {'steams': stream_id}},
+        'sort': {'created_at' : 'desc'}
+    })
     params = urllib.urlencode({
         'size': size,
-        'q': 'streams:%s' % stream_id,
     })
     http = httplib2.Http(timeout=10)
     url = '%s?%s' % (ELASTICSEARCH_URL, params)
-    response, content = http.request(url)
+    response, content = http.request(url, body=body)
     assert response.status == 200
     return [LogMessage(**hit['_source']) for hit in json.loads(content)['hits']['hits']]
 
