@@ -1,13 +1,14 @@
 #!/usr/bin/env python
-# vim: set ts=8 sw=4 sts=4 et ai:
+# vim: set ts=8 sw=4 sts=4 et ai tw=79:
 
-'''
-This script retrieves the stream id from the mongo database using the alarm topic
-and queries elasticsearch for the last log messages on that stream. The log
-messages are sent to the email addresses specified on the command line.
+"""
+This script retrieves the stream id from the mongo database using the alarm
+topic and queries elasticsearch for the last log messages on that stream.
+
+The log messages are sent to the email addresses specified on the command line.
 
 Usage: graylog-email-alert.py alert@example.com more@example.com
-'''
+"""
 
 # configurables
 FROM_EMAIL = 'noreply@example.com'
@@ -29,7 +30,10 @@ import urllib
 
 re_description = re.compile(r'^Stream \[.*?\] received (\d+) messages')
 
-LogMessage = namedtuple('LogMessage', 'message, level, host, facility, file, histogram_time, full_message, created_at, line, streams')
+LogMessage = namedtuple('LogMessage', ('message, level, host, facility, file, '
+                                       'histogram_time, full_message, '
+                                       'created_at, line, streams'))
+
 
 def fancymessage(to, topic, description):
     try:
@@ -52,11 +56,13 @@ def fancymessage(to, topic, description):
         messages = []
 
     for message in messages:
-        timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(message.created_at))
+        timestamp = time.strftime('%Y-%m-%d %H:%M:%S',
+                                  time.localtime(message.created_at))
         body.append('%s %s' % (timestamp, message.message))
 
     if not stream:
-        body.append('Unable to load messages for this topic, I could not identify the stream')
+        body.append('Unable to load messages for this topic, I could not '
+                    'identify the stream')
 
     msg = MIMEText('\n'.join(body))
     msg['To'] = ', '.join(to)
@@ -70,7 +76,7 @@ def fancymessage(to, topic, description):
 def get_messages(stream_id, size):
     body = json.dumps({
         'query': {'term': {'streams': unicode(stream_id)}},
-        'sort': {'created_at' : 'desc'}
+        'sort': {'created_at': 'desc'}
     })
     params = urllib.urlencode({
         'size': size,
@@ -79,7 +85,8 @@ def get_messages(stream_id, size):
     url = '%s?%s' % (ELASTICSEARCH_URL, params)
     response, content = http.request(url, body=body)
     assert response.status == 200
-    return [LogMessage(**hit['_source']) for hit in json.loads(content)['hits']['hits']]
+    return [LogMessage(**hit['_source'])
+            for hit in json.loads(content)['hits']['hits']]
 
 
 def get_stream(topic):
