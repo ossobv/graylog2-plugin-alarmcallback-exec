@@ -35,17 +35,25 @@ public class ExecTrigger {
         // not supported by our graylog server
         //env.put("GL2_MESSAGE_COUNT", Integer.toString(alarm.getMessageCount()));
 
+        Process p;
         try {
-            Process p = pb.start();
+            p = pb.start();
         } catch (IOException e) {
             throw new AlarmCallbackException(String.format("Could not start alarm process: %s", e));
         }
 
-        // 
-        //int status = p.waitFor();
-        //if (status != 0) {
-        //    throw new AlarmCallbackException(String.format("Command terminated with status %d", status));
-        //}
+        int status;
+        try {
+            status = p.waitFor();
+        } catch (InterruptedException e) {
+            throw new AlarmCallbackException("Command interrupted"); // ?
+        }
+
+        if (status != 0) {
+            throw new AlarmCallbackException(String.format("Command terminated with status %d", status));
+        }
+
     }
 }
+
 // vim: set ts=8 sw=4 sts=4 et ai:
