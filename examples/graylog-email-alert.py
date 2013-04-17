@@ -16,7 +16,6 @@ ELASTICSEARCH_URL = 'http://localhost:9200/graylog2_recent/message/_search'
 MONGO_URI = 'mongodb://localhost:27017'
 MONGO_DB = 'graylog2'
 
-from collections import namedtuple
 from email.mime.text import MIMEText
 import json
 import httplib2
@@ -30,9 +29,10 @@ import urllib
 
 re_description = re.compile(r'^Stream \[.*?\] received (\d+) messages')
 
-LogMessage = namedtuple('LogMessage', ('message, level, host, facility, file, '
-                                       'histogram_time, full_message, '
-                                       'created_at, line, streams'))
+
+class LogMessage(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 
 def fancymessage(to, topic, description):
