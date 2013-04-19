@@ -31,8 +31,25 @@ re_description = re.compile(r'^Stream \[.*?\] received (\d+) messages')
 
 
 class LogMessage(object):
+    '''
+    LogMessage represents a single log message as stored in elasticsearch.
+    Because of the dynamic nature of elasticsearch extra properties may be
+    stored by the graylog server. To allow this the LogMessage class stores
+    everything in the instance dictionary.
+    A LogMessage instance always defines the following properties:
+        message, level, host, facility, file, histogram_time, full_message,
+        created_at, line and streams
+    '''
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
+
+    @property
+    def timestamp(self):
+        return time.strftime('%Y-%m-%d %H:%M:%S',
+                            time.localtime(self.created_at))
+
+    def __unicode__(self):
+        return u'%s %s %s' % (self.timestamp, self.host, self.message)
 
 
 def fancymessage(to, topic, description):
@@ -56,9 +73,7 @@ def fancymessage(to, topic, description):
         messages = []
 
     for message in messages:
-        timestamp = time.strftime('%Y-%m-%d %H:%M:%S',
-                                  time.localtime(message.created_at))
-        body.append('%s %s' % (timestamp, message.message))
+        body.append(u'%s %s' % (message.timestamp, message.message))
 
     if not stream:
         body.append('Unable to load messages for this topic, I could not '
@@ -66,7 +81,7 @@ def fancymessage(to, topic, description):
 
     msg = MIMEText('\n'.join(body))
     msg['To'] = ', '.join(to)
-    msg['From'] = 'noreply@voipgrid.nl'
+    msg['From'] = FROM_EMAIL
     msg['Subject'] = topic
     s = smtplib.SMTP('localhost')
     s.sendmail(FROM_EMAIL, to, msg.as_string())
