@@ -20,4 +20,4 @@ Plugin configuration: graylog-email-alert.py alert@example.com more@example.com
 Prebuilt Download
 -----------------
 
-For your convenience a prebuilt jar is available for [download](https://code.osso.nl/projects/graylog2-plugin-alarmcallback-exec/org.graylog2.execalarmcallback.callback.ExecAlarmCallback_gl2plugin.jar) which can be placed in the /plugin/alarm\_callbacks/ directory of your graylog2 server.
+For your convenience a prebuilt jar is available for [download](https://code.osso.nl/projects/graylog2-plugin-alarmcallback-exec/org.graylog2.execalarmcallback.callback.ExecAlarmCallback_gl2plugin-2.jar) which can be placed in the /plugin/alarm\_callbacks/ directory of your graylog2 server.
