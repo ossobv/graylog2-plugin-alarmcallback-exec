@@ -21,3 +21,5 @@ Prebuilt Download
 -----------------
 
 For your convenience a prebuilt jar is available for [download](https://code.osso.nl/projects/graylog2-plugin-alarmcallback-exec/org.graylog2.execalarmcallback.callback.ExecAlarmCallback_gl2plugin-2.jar) which can be placed in the /plugin/alarm\_callbacks/ directory of your graylog2 server.
+
+*There have been reports that you need to remove the "-2" from the filename before graylog2 detects it.*
