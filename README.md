@@ -47,7 +47,7 @@ Prebuilt Download
 -----------------
 
 For your convenience a prebuilt jar is available for
-[download](https://code.osso.nl/projects/graylog2-plugin-alarmcallback-exec/org.graylog2.execalarmcallback.callback.ExecAlarmCallback_gl2plugin-2.jar)
+[download](https://downloads.osso.nl/Graylog2/graylog2-plugin-alarmcallback-exec-0.10/org.graylog2.execalarmcallback.callback.ExecAlarmCallback_gl2plugin-2.jar)
 which can be placed in the /plugin/alarm\_callbacks/ directory of your
 graylog2 server.
 
